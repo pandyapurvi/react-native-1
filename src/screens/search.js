@@ -1,40 +1,34 @@
-import React, {useState} from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import SearchBar from '../components/searchBar';
-import yelp from '../api/yelp';
+import resultHook from '../hooks/resultHook';
+import ResultList from '../components/resultList';
 
-const SearchScreen = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [data, setData] = useState([]);
-  const [error, setError] = useState('');
+const SearchScreen = ({navigation}) => {
+  const [term, setTerm] = useState('');
+  const [searchApi, data, error] = resultHook();
+  
+// console.log(data[0].price)
 
-  const searchApi = async () => {
-    try {
-      const response = await yelp.get('/search', {
-        params: {
-          limit: 50,
-          term: searchTerm,
-          location: 'san jose'
-        }
-      });
-      console.log(data.length)
-      setData(response.data.businesses)
-
-    } catch(err){
-      setError('Something went wrong');
-    }
-  }
-  // console.log(searchTerm)
+const filterResultsByPrice = (price) => {
+  return data.filter(result => {
+    return result.price === price
+  })
+}
   return (
-  <View>
+  <View style={{flex: 1}}>
     <SearchBar 
-      searchTerm={searchTerm} 
-      onChangeSearch={(newSearch) => setSearchTerm(newSearch)} 
-      onSeachTerm={searchApi}
+      searchTerm={term} 
+      onChangeSearch={(newSearch) => setTerm(newSearch)} 
+      onSeachTerm={() => searchApi(term)}
     />
     {error ? <Text>{error}</Text> : null}
-    <Text>{searchTerm}</Text>
-    <Text>We have found {data.length} results</Text>
+    <Text>{term}</Text>
+    <ScrollView>
+      <ResultList navigation={navigation} result={filterResultsByPrice('$')} title='Cost effective' />
+      <ResultList navigation={navigation} result={filterResultsByPrice('$$')} title='Bit pricier' />
+      <ResultList navigation={navigation} result={filterResultsByPrice('$$$')} title='Big spender' />
+    </ScrollView>
   </View>
   )
 };

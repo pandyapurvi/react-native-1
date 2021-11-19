@@ -26,7 +26,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginHorizontal:15,
     flexDirection: 'row',
-    marginTop: 10
+    marginTop: 10,
+    marginBottom: 10
   },
   textstyle: {
     flex: 1,
